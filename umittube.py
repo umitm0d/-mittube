@@ -4,6 +4,7 @@ import re
 import requests
 import urllib3
 import sys
+from datetime import datetime
 
 # SSL uyarılarını bastır
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -50,18 +51,16 @@ def save_channel_as_m3u8(channel_name, stream_url):
     with open(filename, "w", encoding="utf-8") as f:
         f.write(content)
     print(f"Saved: {filename}")
-    return safe_name
 
 def create_master_playlist(channels):
     """Ana M3U listesi oluşturur"""
     master_content = ["#EXTM3U"]
     master_content.append("# Playlist: Ümittube")
-    master_content.append(f"# Generated: {__import__('datetime').datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    master_content.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     master_content.append(f"# Total channels: {len(channels)}")
     master_content.append("")
     
     for channel_name, stream_url in channels:
-        # Kanal bilgisi
         master_content.append(f"#EXTINF:-1 tvg-logo=\"\" group-title=\"Ümittube\",{channel_name}")
         master_content.append(stream_url)
         master_content.append("")
@@ -71,7 +70,7 @@ def create_master_playlist(channels):
         f.write("\n".join(master_content))
     print(f"✅ Master playlist saved: {master_filename}")
     
-    # Ayrıca raw URL için GitHub'a uygun version
+    # GitHub raw için basit liste
     github_filename = "Ümittube/umittube_github.m3u"
     github_content = ["#EXTM3U"]
     for channel_name, stream_url in channels:
