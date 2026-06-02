@@ -2,7 +2,7 @@ name: Download Ümittube Playlist
 
 on:
   schedule:
-    - cron: '0 */6 * * *'  # Her 6 saatte bir
+    - cron: '0 */6 * * *'
   workflow_dispatch:
 
 jobs:
@@ -22,11 +22,11 @@ jobs:
       run: |
         pip install requests urllib3
     
-    - name: Run downloader
+    - name: Run umittube.py
       env:
         ENCRYPTED_PLAYLIST_URL: ${{ secrets.ENCRYPTED_PLAYLIST_URL }}
       run: |
-        python downloader.py
+        python umittube.py
     
     - name: Commit and push changes
       run: |
