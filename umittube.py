@@ -1,3 +1,4 @@
+
 import base64
 import os
 import re
@@ -16,8 +17,9 @@ if not ENCRYPTED_URL:
     sys.exit(1)
 
 def create_umittube_folder():
-    if not os.path.exists("Ümittube"):
-        os.makedirs("Ümittube")
+    # İngilizce karakter kullan - UTF-8 sorunu yaşamamak için
+    if not os.path.exists("Umittube"):
+        os.makedirs("Umittube")
 
 def decrypt_url():
     decrypted_bytes = base64.b64decode(ENCRYPTED_URL)
@@ -41,8 +43,12 @@ def parse_playlist(content):
     return channels
 
 def save_channel_as_m3u8(channel_name, stream_url):
+    # Güvenli dosya adı oluştur (Türkçe karakterleri dönüştür)
     safe_name = "".join(c for c in channel_name if c.isalnum() or c in ".-_").rstrip()
-    filename = f"Ümittube/{safe_name}.m3u8"
+    # Türkçe karakterleri değiştir
+    safe_name = safe_name.replace('ı', 'i').replace('ğ', 'g').replace('ü', 'u').replace('ş', 's').replace('ö', 'o').replace('ç', 'c')
+    safe_name = safe_name.replace('İ', 'I').replace('Ğ', 'G').replace('Ü', 'U').replace('Ş', 'S').replace('Ö', 'O').replace('Ç', 'C')
+    filename = f"Umittube/{safe_name}.m3u8"
     content = f"""#EXTM3U
 #EXT-X-VERSION:3
 #EXT-X-STREAM-INF:BANDWIDTH=1280000,RESOLUTION=1280x720
@@ -55,23 +61,23 @@ def save_channel_as_m3u8(channel_name, stream_url):
 def create_master_playlist(channels):
     """Ana M3U listesi oluşturur"""
     master_content = ["#EXTM3U"]
-    master_content.append("# Playlist: Ümittube")
+    master_content.append("# Playlist: Umittube")
     master_content.append(f"# Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     master_content.append(f"# Total channels: {len(channels)}")
     master_content.append("")
     
     for channel_name, stream_url in channels:
-        master_content.append(f"#EXTINF:-1 tvg-logo=\"\" group-title=\"Ümittube\",{channel_name}")
+        master_content.append(f"#EXTINF:-1 tvg-logo=\"\" group-title=\"Umittube\",{channel_name}")
         master_content.append(stream_url)
         master_content.append("")
     
-    master_filename = "Ümittube/umittube.m3u"
+    master_filename = "Umittube/umittube.m3u"
     with open(master_filename, "w", encoding="utf-8") as f:
         f.write("\n".join(master_content))
     print(f"✅ Master playlist saved: {master_filename}")
     
     # GitHub raw için basit liste
-    github_filename = "Ümittube/umittube_github.m3u"
+    github_filename = "Umittube/umittube_github.m3u"
     github_content = ["#EXTM3U"]
     for channel_name, stream_url in channels:
         github_content.append(f"#EXTINF:-1,{channel_name}")
@@ -101,11 +107,11 @@ def main():
         # Ana M3U listesini oluştur
         create_master_playlist(channels)
         
-        print(f"\n✅ Successfully saved {len(channels)} channels to Ümittube/")
+        print(f"\n✅ Successfully saved {len(channels)} channels to Umittube/")
         print("📁 Files:")
-        print("   - Ümittube/umittube.m3u (master playlist)")
-        print("   - Ümittube/umittube_github.m3u (GitHub raw friendly)")
-        print("   - Ümittube/*.m3u8 (individual channel files)")
+        print("   - Umittube/umittube.m3u (master playlist)")
+        print("   - Umittube/umittube_github.m3u (GitHub raw friendly)")
+        print("   - Umittube/*.m3u8 (individual channel files)")
     
     except Exception as e:
         print(f"Error: {e}")
