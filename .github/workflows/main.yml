@@ -1,0 +1,37 @@
+name: Download Ümittube Playlist
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Her 6 saatte bir
+  workflow_dispatch:
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests urllib3
+    
+    - name: Run downloader
+      env:
+        ENCRYPTED_PLAYLIST_URL: ${{ secrets.ENCRYPTED_PLAYLIST_URL }}
+      run: |
+        python downloader.py
+    
+    - name: Commit and push changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add Ümittube/
+        git diff --quiet && git diff --staged --quiet || git commit -m "🔄 Update Ümittube playlist [$(date +'%Y-%m-%d %H:%M:%S')]"
+        git push
