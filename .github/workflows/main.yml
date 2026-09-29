@@ -11,29 +11,34 @@ on:
     branches:
       - main
 
+concurrency:
+  group: umittube
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-      
+
       - run: pip install requests urllib3
-      
+
       - name: Run script
         run: python umittube.py
         env:
           ENCRYPTED_PLAYLIST_URL: ${{ secrets.ENCRYPTED_PLAYLIST_URL }}
-      
+
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           git add -A
           git diff --cached --quiet || git commit -m "Update Umittube playlist"
+          git pull --rebase origin main
           git push
